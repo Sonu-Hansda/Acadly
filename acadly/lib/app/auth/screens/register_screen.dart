@@ -13,11 +13,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'Register',
           style: Theme.of(
             context,
-          ).textTheme.displayMedium?.copyWith(color: AppColors.background),
+          ).textTheme.displayMedium?.copyWith(color: AppColors.accent),
         ),
         backgroundColor: AppColors.primary,
       ),
@@ -38,6 +39,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Password'),
             ),
+            const SizedBox(height: 16),
+            TextFormField(
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Confirm Password'),
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
@@ -56,14 +62,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Already have an account? Login',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Already have an account?"),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Login',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
