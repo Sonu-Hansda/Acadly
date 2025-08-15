@@ -1,48 +1,49 @@
+import 'package:acadly/app/auth/screens/activity.dart';
+import 'package:acadly/app/auth/screens/notes.dart';
+import 'package:acadly/app/auth/screens/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:acadly/app/common/theme/colors.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int currentPage=0;
+  List<Widget> pages = const [Notes(), Activity(), Profile()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Campusify',
-          style: Theme.of(
-            context,
-          ).textTheme.displayMedium?.copyWith(color: AppColors.background),
-        ),
-        backgroundColor: AppColors.primary,
+      body: IndexedStack(
+        index: currentPage,
+        children: pages,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Welcome to Campusify!',
-              style: Theme.of(context).textTheme.displayLarge,
+      bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: AppColors.accent,
+          currentIndex: currentPage,
+          onTap: (value){
+            setState(() {
+              currentPage=value;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.menu_book_rounded),
+              label: "Notes",
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50,
-                  vertical: 15,
-                ),
-              ),
-              child: Text(
-                'Logout',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.event),
+                label: "Activity",
             ),
-          ],
-        ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: "Profile",
+            ),
+          ]
       ),
     );
   }

@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Text(
                 'Campusify',
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  color: AppColors.background,
+                  color: AppColors.accent,
                   fontSize: 48,
                 ),
               ),

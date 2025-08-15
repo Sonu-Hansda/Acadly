@@ -30,6 +30,6 @@ class AppTypography {
   static final TextStyle button = GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.bold,
-    color: AppColors.background,
+    color: AppColors.accent,
   );
 }

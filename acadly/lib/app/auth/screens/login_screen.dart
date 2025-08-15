@@ -13,11 +13,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'Login',
           style: Theme.of(
             context,
-          ).textTheme.displayMedium?.copyWith(color: AppColors.background),
+          ).textTheme.displayMedium?.copyWith(color: AppColors.accent),
         ),
         backgroundColor: AppColors.primary,
       ),
@@ -33,6 +34,12 @@ class _LoginScreenState extends State<LoginScreen> {
             TextFormField(
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Password'),
+            ),
+            Row(
+              children: [
+                Expanded(child: Text(''),),
+                TextButton(onPressed: (){}, child: Text('Forgot Password?', style: Theme.of(context).textTheme.bodyMedium,)),
+              ],
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -52,14 +59,20 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: Text(
-                'Don\'t have an account? Register',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Don't have an account?"),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/register');
+                  },
+                  child: Text(
+                    'Register',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
