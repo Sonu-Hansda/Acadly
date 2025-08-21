@@ -5,9 +5,12 @@ import 'config.dart';
 class ApiService {
   static String baseUrl = ApiConfig.getBaseURL();
 
-  static Future<Map<String, dynamic>> login(String email, String password) async {
+  static Future<Map<String, dynamic>> login(
+    String email,
+    String password,
+  ) async {
     try {
-      final url = Uri.parse("$baseUrl/api/user/login");
+      final url = Uri.parse("$baseUrl/api/v1/user/login");
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
@@ -20,7 +23,10 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> register(
-      String username, String email, String password) async {
+    String username,
+    String email,
+    String password,
+  ) async {
     try {
       final url = Uri.parse("$baseUrl/api/user/signup");
       final response = await http.post(
@@ -40,7 +46,9 @@ class ApiService {
   }
 
   static Map<String, dynamic> _handleResponse(
-      http.Response response, String defaultError) {
+    http.Response response,
+    String defaultError,
+  ) {
     if (response.statusCode == 200) {
       try {
         final data = jsonDecode(response.body);
