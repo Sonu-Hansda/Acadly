@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./utils/features.js";
 import {v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+import { errorMiddleware } from "./middlewares/error.js";
 // import cors from "cors";
 
 dotenv.config({
@@ -32,6 +33,9 @@ app.use("/api/v1/user" ,  userRoutes)
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
+
+
+app.use(errorMiddleware);
 
 app.listen(port, () => {
   console.log(`app is running on port ${port}`);
