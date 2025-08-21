@@ -2,6 +2,7 @@ final notes = [
   {
     'title' : 'Mechanics'
   },
+
   {
     'title' : 'Maths'
   }

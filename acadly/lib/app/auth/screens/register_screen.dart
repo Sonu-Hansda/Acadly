@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:acadly/app/common/theme/colors.dart';
 
+import '../../../services/api_service.dart';
+
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -9,6 +11,19 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  bool isLoading = false;
+  void showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating , backgroundColor: AppColors.primary,),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,26 +43,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
+              controller: usernameController,
               decoration: const InputDecoration(labelText: 'Username'),
             ),
             const SizedBox(height: 16),
             TextFormField(
+              controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
             const SizedBox(height: 16),
             TextFormField(
               obscureText: true,
+              controller: passwordController,
               decoration: const InputDecoration(labelText: 'Password'),
             ),
             const SizedBox(height: 16),
             TextFormField(
               obscureText: true,
+              controller: confirmPasswordController,
               decoration: const InputDecoration(labelText: 'Confirm Password'),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
+              onPressed: isLoading? null
+              : ()async{
+                setState(() => isLoading = true);
+
+                if (usernameController.text.isEmpty ||
+                    emailController.text.isEmpty ||
+                    passwordController.text.isEmpty ||
+                    confirmPasswordController.text.isEmpty) {
+                  showSnack("All fields are required!");
+                  setState(() => isLoading = false);
+                  return;
+                }
+
+                if (passwordController.text != confirmPasswordController.text) {
+                  showSnack("Passwords do not match!");
+                  setState(() => isLoading = false);
+                  return;
+                }
+
+                try {
+                  final res = await ApiService.register(
+                    usernameController.text.trim(),
+                    emailController.text.trim(),
+                    passwordController.text.trim(),
+                  );
+
+                  if (res['success'] == true) {
+                    showSnack("Account created successfully!");
+                    Navigator.pushReplacementNamed(context, '/home');
+                  } else {
+                    showSnack(res['message'] ?? "Registration failed!");
+                  }
+                } catch (e) {
+                  showSnack("Error: $e");
+                }
+
+                setState(() => isLoading = false);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -56,7 +110,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   vertical: 15,
                 ),
               ),
-              child: Text(
+              child: isLoading
+                  ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              )
+                  : Text(
                 'Register',
                 style: Theme.of(context).textTheme.labelLarge,
               ),
