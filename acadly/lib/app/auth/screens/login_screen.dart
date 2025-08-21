@@ -13,6 +13,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
 
   bool isLoading = false;
 
@@ -54,75 +64,40 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: isLoading? null :()async{
-                setState(() {
-                  isLoading=true;
-                });
-                if (emailController.text.isEmpty) {
-                  setState(() {
-                    isLoading = false;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Please enter your email address"),
-                      backgroundColor: AppColors.primary,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+              onPressed: isLoading ? null : () async {
+                setState(() => isLoading = true);
+
+                if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+                  _showSnackBar("Please fill all fields");
+                  setState(() => isLoading = false);
                   return;
                 }
 
-                if (passwordController.text.isEmpty) {
-                  setState(() {
-                    isLoading = false;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Please enter your password"),
-                      backgroundColor: AppColors.primary,
-                      behavior: SnackBarBehavior.floating,
-                    ),
+                try {
+                  final res = await ApiService.login(
+                    emailController.text.trim(),
+                    passwordController.text.trim(),
                   );
-                  return;
-                }
-                try{
-                  final res = await ApiService.login(emailController.text.trim(), passwordController.text.trim());
-                  if( res['success']== true){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Login Successful"),
-                        backgroundColor: AppColors.primary,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+
+                  if (!mounted) return;
+
+                  if (res['success'] == true) {
+                    _showSnackBar("Login Successful");
                     Navigator.pushReplacementNamed(context, '/home');
+                  } else {
+                    _showSnackBar(res['message'] ?? "Invalid email or password!");
                   }
-                  else{
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(res['message'] ?? "Invalid email or password !" ),
-                          backgroundColor: AppColors.primary,
-                          behavior: SnackBarBehavior.floating,),
-                    );
-                  }
-                } catch(e){
+                } catch (e) {
                   String errorMsg = "Something went wrong. Please try again.";
                   if (e.toString().contains("SocketException")) {
                     errorMsg = "No Internet connection. Please check your network.";
                   } else if (e.toString().contains("Timeout")) {
                     errorMsg = "Server is taking too long. Try again later.";
                   }
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(errorMsg),
-                      backgroundColor: AppColors.primary,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+                  _showSnackBar(errorMsg);
                 }
-                setState(() {
-                  isLoading = false;
-                });
+
+                setState(() => isLoading = false);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -143,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text("Don't have an account?"),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/register');
+                    Navigator.pushReplacementNamed(context, '/register');
                   },
                   child: Text(
                     'Register',
