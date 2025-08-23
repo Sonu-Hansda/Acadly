@@ -10,7 +10,6 @@ class Activity extends StatefulWidget {
 }
 
 class _ActivityState extends State<Activity> {
-
   String selectedValue = "Today";
   String selectedValue1 = "Assignments";
   List<String> options = ['General', 'Assignments'];
@@ -36,17 +35,24 @@ class _ActivityState extends State<Activity> {
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     decoration: ShapeDecoration(
-                      shape: Theme.of(context).inputDecorationTheme.enabledBorder
-                      is OutlineInputBorder
-                          ? Theme.of(context).inputDecorationTheme.enabledBorder!
-                      as OutlineInputBorder
+                      shape:
+                          Theme.of(context).inputDecorationTheme.enabledBorder
+                              is OutlineInputBorder
+                          ? Theme.of(
+                                  context,
+                                ).inputDecorationTheme.enabledBorder!
+                                as OutlineInputBorder
                           : const OutlineInputBorder(),
                     ),
                     child: DropdownButton<String>(
                       value: selectedValue,
-                      isExpanded: true, // so it takes full width inside container
+                      isExpanded:
+                          true, // so it takes full width inside container
                       underline: SizedBox(), // removes default underline
                       icon: Icon(Icons.arrow_drop_down),
                       items: dates.map((String value) {
@@ -63,20 +69,27 @@ class _ActivityState extends State<Activity> {
                     ),
                   ),
                 ),
-                SizedBox(width: 30,),
+                SizedBox(width: 30),
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     decoration: ShapeDecoration(
-                      shape: Theme.of(context).inputDecorationTheme.enabledBorder
-                      is OutlineInputBorder
-                          ? Theme.of(context).inputDecorationTheme.enabledBorder!
-                      as OutlineInputBorder
+                      shape:
+                          Theme.of(context).inputDecorationTheme.enabledBorder
+                              is OutlineInputBorder
+                          ? Theme.of(
+                                  context,
+                                ).inputDecorationTheme.enabledBorder!
+                                as OutlineInputBorder
                           : const OutlineInputBorder(),
                     ),
                     child: DropdownButton<String>(
                       value: selectedValue1,
-                      isExpanded: true, // so it takes full width inside container
+                      isExpanded:
+                          true, // so it takes full width inside container
                       underline: SizedBox(), // removes default underline
                       icon: Icon(Icons.arrow_drop_down),
                       items: options.map((String value) {
@@ -93,9 +106,8 @@ class _ActivityState extends State<Activity> {
                     ),
                   ),
                 ),
-
               ],
-            )
+            ),
           ],
         ),
       ),

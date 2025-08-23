@@ -43,13 +43,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
-              controller: usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
+              controller: emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              controller: usernameController,
+              decoration: const InputDecoration(labelText: 'Username'),
             ),
             const SizedBox(height: 16),
             TextFormField(

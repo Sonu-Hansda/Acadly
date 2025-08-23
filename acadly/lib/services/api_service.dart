@@ -7,7 +7,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final url = Uri.parse("$baseUrl/api/user/login");
+      final url = Uri.parse("$baseUrl/api/v1/user/login");
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
@@ -20,15 +20,15 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> register(
-      String username, String email, String password) async {
+      String email, String username, String password) async {
     try {
-      final url = Uri.parse("$baseUrl/api/user/signup");
+      final url = Uri.parse("$baseUrl/api/v1/user/signup");
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "username": username,
           "email": email,
+          "username": username,
           "password": password,
         }),
       );
