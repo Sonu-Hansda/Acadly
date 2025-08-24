@@ -10,7 +10,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   void _showSnackBar(String message) {
@@ -22,7 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
 
   bool isLoading = false;
 
@@ -56,49 +54,61 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             Row(
               children: [
-                Expanded(child: Text(''),),
+                Expanded(child: Text('')),
                 TextButton(
-                    onPressed: (){},
-                    child: Text('Forgot Password?', style: Theme.of(context).textTheme.bodyMedium,)),
+                  onPressed: () {},
+                  child: Text(
+                    'Forgot Password?',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: isLoading ? null : () async {
-                setState(() => isLoading = true);
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      setState(() => isLoading = true);
 
-                if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-                  _showSnackBar("Please fill all fields");
-                  setState(() => isLoading = false);
-                  return;
-                }
+                      if (emailController.text.isEmpty ||
+                          passwordController.text.isEmpty) {
+                        _showSnackBar("Please fill all fields");
+                        setState(() => isLoading = false);
+                        return;
+                      }
 
-                try {
-                  final res = await ApiService.login(
-                    emailController.text.trim(),
-                    passwordController.text.trim(),
-                  );
+                      try {
+                        final res = await ApiService.login(
+                          emailController.text.trim(),
+                          passwordController.text.trim(),
+                        );
 
-                  if (!mounted) return;
+                        if (!mounted) return;
 
-                  if (res['success'] == true) {
-                    _showSnackBar("Login Successful");
-                    Navigator.pushReplacementNamed(context, '/home');
-                  } else {
-                    _showSnackBar(res['message'] ?? "Invalid email or password!");
-                  }
-                } catch (e) {
-                  String errorMsg = "Something went wrong. Please try again.";
-                  if (e.toString().contains("SocketException")) {
-                    errorMsg = "No Internet connection. Please check your network.";
-                  } else if (e.toString().contains("Timeout")) {
-                    errorMsg = "Server is taking too long. Try again later.";
-                  }
-                  _showSnackBar(errorMsg);
-                }
+                        if (res['success'] == true) {
+                          _showSnackBar("Login Successful");
+                          Navigator.pushReplacementNamed(context, '/home');
+                        } else {
+                          _showSnackBar(
+                            res['message'] ?? "Invalid email or password!",
+                          );
+                        }
+                      } catch (e) {
+                        String errorMsg =
+                            "Something went wrong. Please try again.";
+                        if (e.toString().contains("SocketException")) {
+                          errorMsg =
+                              "No Internet connection. Please check your network.";
+                        } else if (e.toString().contains("Timeout")) {
+                          errorMsg =
+                              "Server is taking too long. Try again later.";
+                        }
+                        _showSnackBar(errorMsg);
+                      }
 
-                setState(() => isLoading = false);
-              },
+                      setState(() => isLoading = false);
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(
@@ -106,10 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   vertical: 15,
                 ),
               ),
-              child: Text(
-                'Login',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
+              child: isLoading
+                  ? CircularProgressIndicator(color: AppColors.primary)
+                  : Text(
+                      'Login',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -118,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text("Don't have an account?"),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/register');
+                    Navigator.pushNamed(context, '/register');
                   },
                   child: Text(
                     'Register',
