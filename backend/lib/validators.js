@@ -9,7 +9,7 @@ const registerValidator = () => [
 ];
 
 const loginValidator = () => [
-    body("username" , "Please enter a valid username").notEmpty(),
+    body("email" , "Please enter a valid email").notEmpty(),
     body("password" , "Please enter a valid password").notEmpty(),
 ];
 
