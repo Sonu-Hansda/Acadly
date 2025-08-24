@@ -28,13 +28,13 @@ class ApiService {
     String password,
   ) async {
     try {
-      final url = Uri.parse("$baseUrl/api/user/signup");
+      final url = Uri.parse("$baseUrl/api/v1/user/signup");
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "username": username,
           "email": email,
+          "username": username,
           "password": password,
         }),
       );
