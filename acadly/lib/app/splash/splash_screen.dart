@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:acadly/app/common/theme/colors.dart';
 import 'package:acadly/utils/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,10 +11,21 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  late SharedPreferences prefs;
   @override
   void initState() {
     super.initState();
-    navigateToLogin(context);
+    checkAuth(context);
+  }
+
+  Future<void> checkAuth(BuildContext context) async {
+    prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    if (prefs.containsKey('token')) {
+      navigateToHome(context);
+    } else {
+      navigateToLogin(context);
+    }
   }
 
   @override
