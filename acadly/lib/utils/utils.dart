@@ -5,3 +5,9 @@ void navigateToLogin(BuildContext context) {
     Navigator.pushReplacementNamed(context, '/login');
   });
 }
+
+void navigateToHome(BuildContext context) {
+  Future.delayed(const Duration(seconds: 2), () {
+    Navigator.pushReplacementNamed(context, '/home');
+  });
+}
