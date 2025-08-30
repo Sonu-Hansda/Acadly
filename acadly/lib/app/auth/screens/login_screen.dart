@@ -1,6 +1,7 @@
 import 'package:acadly/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:acadly/app/common/theme/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,8 +11,22 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  late SharedPreferences prefs;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+
+    _initSharedPreferences();
+  }
+
+  Future<void> _initSharedPreferences() async =>
+      prefs = await SharedPreferences.getInstance();
+
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -23,6 +38,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool isLoading = false;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (!mounted) return;
 
                         if (res['success'] == true) {
+                          prefs.setString('token', res['token']);
                           _showSnackBar("Login Successful");
                           Navigator.pushReplacementNamed(context, '/home');
                         } else {
