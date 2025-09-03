@@ -20,7 +20,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
   void showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating , backgroundColor: AppColors.primary,),
+      SnackBar(
+        content: Text(
+          message,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.accent),
+        ),
+        behavior: SnackBarBehavior.floating ,
+        backgroundColor: AppColors.primary,
+      ),
     );
   }
 

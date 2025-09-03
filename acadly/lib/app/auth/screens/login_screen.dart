@@ -16,9 +16,14 @@ class _LoginScreenState extends State<LoginScreen> {
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.accent),
+        ),
+        behavior: SnackBarBehavior.floating ,
         backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
       ),
     );
   }
