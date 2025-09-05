@@ -76,29 +76,12 @@ import { ErrorHandler } from "../utils/utility.js";
 
 const newUser = TryCatch(async (req, res, next) => {
     const { email, username, password } = req.body;
-    const profilePicture = req.file;
-
-    if (!profilePicture) {
-        return next(new ErrorHandler("Please upload a profile picture", 400));
-    }
 
     try {
-        const result = await uploadFilesToCloudinary([profilePicture]);
-
-        if (!result || result.length === 0) {
-            return next(new ErrorHandler("Failed to upload profile picture", 500));
-        }
-
-        const profilePictureData = {
-            public_id: result[0].public_id,
-            url: result[0].url,
-        };
-
         const user = await User.create({
             email,
             username,
             password,
-            profilePicture: profilePictureData,
         });
 
         sendToken(res, user, 201, "User created successfully");
@@ -114,21 +97,17 @@ const newUser = TryCatch(async (req, res, next) => {
             return next(new ErrorHandler(`${duplicateField} already exists`, 400));
         }
         
-        if (error.message.includes('cloudinary')) {
-            return next(new ErrorHandler("Failed to upload image", 500));
-        }
-        
         return next(new ErrorHandler(error.message || "Failed to create user", 500));
     }
 });
 
 const login = TryCatch(async (req, res, next) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    const user = await User.findOne({ username }).select("+password");
+    const user = await User.findOne({ email }).select("+password");
         
     if (!user) {
-        return next(new ErrorHandler("Invalid Username or password", 404));
+        return next(new ErrorHandler("Invalid email or password", 404));
     }
 
     const isPasswordMatched = await compare(password, user.password);
@@ -137,7 +116,7 @@ const login = TryCatch(async (req, res, next) => {
         return next(new ErrorHandler("Invalid Password or username", 404));
     }
 
-    sendToken(res, user, 200, `Welcome back, ${user.username}`);
+    sendToken(res, user, 200, `Welcome back, ${user.email}`);
 });
 
 export { newUser, login }
