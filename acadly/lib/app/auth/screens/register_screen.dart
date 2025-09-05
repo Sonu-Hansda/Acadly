@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:acadly/app/common/theme/colors.dart';
-
 import '../../../services/api_service.dart';
 
 class RegisterScreen extends StatefulWidget {
