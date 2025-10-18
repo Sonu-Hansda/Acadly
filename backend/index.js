@@ -1,5 +1,6 @@
 import express from "express";
 import userRoutes from "./routes/user.js";
+import subjectNotesRoutes from "./routes/subjectNotes.js";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./utils/features.js";
 import {v2 as cloudinary } from "cloudinary";
@@ -29,6 +30,7 @@ app.use(cookieParser());
 
 
 app.use("/api/v1/user" ,  userRoutes)
+app.use("/api/v1" , subjectNotesRoutes)
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
