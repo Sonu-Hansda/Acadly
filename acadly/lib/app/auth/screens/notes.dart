@@ -1,10 +1,10 @@
-import 'dart:io';
 import 'package:acadly/app/auth/screens/subject_details.dart';
 import 'package:flutter/material.dart';
-import '../../../utils/variable.dart';
 import '../../common/theme/colors.dart';
-import 'package:path_provider/path_provider.dart';
 import '../../common/theme/typography.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 
 class Notes extends StatefulWidget {
   const Notes({super.key});
@@ -19,15 +19,57 @@ final TextEditingController subjectController = TextEditingController();
 final TextEditingController professorController = TextEditingController();
 final TextEditingController creditsController = TextEditingController();
 
+List<Map<String, dynamic>> notes = [];
+bool isLoading = false;
+final String baseUrl = "http://localhost:3000/api/subjects";
+
 @override
   void initState() {
     super.initState();
+    fetchSubjects();
     myController.addListener((){
       setState(() {});
     });
   }
 
-  List<Map<String,dynamic>> get filteredNotes {
+@override
+void dispose() {
+  myController.dispose();
+  subjectController.dispose();
+  professorController.dispose();
+  creditsController.dispose();
+  super.dispose();
+}
+
+Future<void> fetchSubjects() async {
+  try {
+    setState(() => isLoading = true);
+    final response = await http.get(Uri.parse(baseUrl));
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      setState(() {
+        notes = data.map((item) {
+          return {
+            'id': item['_id'],
+            'title': item['title'] ?? 'Untitled',
+            'professor': item['professor'] ?? '',
+            'credits': item['credits']?.toString() ?? '',
+          };
+        }).toList();
+      });
+    } else {
+      print("Failed to load subjects: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("Error fetching subjects: $e");
+  } finally {
+    setState(() => isLoading = false);
+  }
+}
+
+List<Map<String,dynamic>> get filteredNotes {
     final query= myController.text.toLowerCase().trim();
     return notes.where((notes){
       final title = notes['title'].toString().toLowerCase();
@@ -36,15 +78,39 @@ final TextEditingController creditsController = TextEditingController();
     }).toList();
   }
 
-Future<void> createSubjectFolder(String subjectName) async {
-  final directory = await getApplicationDocumentsDirectory();
-  final path = Directory("${directory.path}/$subjectName");
+Future<void> addSubject() async {
+  final subjectName = subjectController.text.trim();
+  final professor = professorController.text.trim();
+  final credits = creditsController.text.trim();
 
-  if (!(await path.exists())) {
-    await path.create(recursive: true);
+  if (subjectName.isEmpty) return;
+
+  final body = jsonEncode({
+    "title": subjectName,
+    "professor": professor,
+    "credits": credits,
+  });
+
+  try {
+    final response = await http.post(
+      Uri.parse(baseUrl),
+      headers: {"Content-Type": "application/json"},
+      body: body,
+    );
+
+    if (response.statusCode == 201) {
+      await fetchSubjects();
+      subjectController.clear();
+      professorController.clear();
+      creditsController.clear();
+      Navigator.pop(context);
+    } else {
+      print("Error adding subject: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("Error adding subject: $e");
   }
 }
-
 
 void showAddSubjectDialog() {
   showDialog(
@@ -147,14 +213,7 @@ void showAddSubjectDialog() {
                   final credits = creditsController.text.trim();
 
                   if (subjectName.isNotEmpty) {
-                    setState(() {
-                      notes.add({
-                        "title": subjectName,
-                        "professor": professor,
-                        "credits": credits,
-                      });
-                    });
-                    await createSubjectFolder(subjectName);
+                    await addSubject();
                     subjectController.clear();
                     professorController.clear();
                     creditsController.clear();
@@ -234,6 +293,7 @@ void showAddSubjectDialog() {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SubjectDetails(
+                            subjectId: subject['id'],
                             subjectName: subject['title'],
                             professor: subject['professor'],
                             credits: subject['credits'],

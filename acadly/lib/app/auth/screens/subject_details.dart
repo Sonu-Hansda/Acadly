@@ -1,15 +1,18 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class SubjectDetails extends StatefulWidget {
+  final String subjectId;
   final String subjectName;
   final String professor;
   final String credits;
 
   const SubjectDetails({
     super.key,
+    required this.subjectId,
     required this.subjectName,
     required this.professor,
     required this.credits,
@@ -20,49 +23,78 @@ class SubjectDetails extends StatefulWidget {
 }
 
 class _SubjectDetailsState extends State<SubjectDetails> {
-  List<FileSystemEntity> files = [];
+  List<Map<String, dynamic>> notes = [];
+  bool isLoading = false;
+
+  final String baseUrl = "http://localhost:3000/api/subjects";
 
   @override
   void initState() {
     super.initState();
-    loadFiles();
+    fetchNotes();
   }
+  Future<void> fetchNotes() async {
+    try {
+      setState(() => isLoading = true);
+      final response = await http.get(
+        Uri.parse("$baseUrl/${widget.subjectId}/notes"),
+      );
 
-  Future<void> loadFiles() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final subjectFolder = Directory("${directory.path}/${widget.subjectName}");
-    if (await subjectFolder.exists()) {
-      setState(() {
-        files = subjectFolder.listSync();
-      });
-    } else {
-      await subjectFolder.create(recursive: true);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          notes = List<Map<String, dynamic>>.from(data['notes'] ?? []);
+        });
+      } else {
+        print("Error fetching notes: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching notes: $e");
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
-  Future<void> pickAndSaveFile() async {
-    final result = await FilePicker.platform.pickFiles();
+  Future<void> uploadFiles() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+      if (result == null) return;
 
-    if (result != null && result.files.single.path != null) {
-      final directory = await getApplicationDocumentsDirectory();
-      final subjectFolder = Directory("${directory.path}/${widget.subjectName}");
-      if (!(await subjectFolder.exists())) {
-        await subjectFolder.create(recursive: true);
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse("$baseUrl/${widget.subjectId}/notes"),
+      );
+
+      for (var file in result.files) {
+        if (file.path != null) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'files',
+            file.path!,
+            filename: file.name,
+          ));
+        }
       }
 
-      final filePath = result.files.single.path!;
-      final fileName = result.files.single.name;
-      final newFile = File("${subjectFolder.path}/$fileName");
+      final response = await request.send();
 
-      await File(filePath).copy(newFile.path);
-      loadFiles();
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Upload successful!")),
+        );
+        fetchNotes();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Upload failed: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
+      print("Error uploading files: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error uploading files: $e")),
+      );
     }
   }
 
-  Future<void> deleteFile(File file) async {
-    await file.delete();
-    loadFiles();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +112,7 @@ class _SubjectDetailsState extends State<SubjectDetails> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // --- Subject Info Card ---
+            // --- Subject Info ---
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
@@ -113,9 +145,9 @@ class _SubjectDetailsState extends State<SubjectDetails> {
 
             const SizedBox(height: 20),
 
-            Text(
-              "Uploaded Files",
-              style: const TextStyle(
+            const Text(
+              "Uploaded Notes",
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -125,19 +157,19 @@ class _SubjectDetailsState extends State<SubjectDetails> {
             const SizedBox(height: 10),
 
             Expanded(
-              child: files.isEmpty
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : notes.isEmpty
                   ? const Center(
                 child: Text(
-                  "No files uploaded yet!",
+                  "No notes uploaded yet!",
                   style: TextStyle(color: Colors.grey, fontSize: 16),
                 ),
               )
                   : ListView.builder(
-                itemCount: files.length,
+                itemCount: notes.length,
                 itemBuilder: (context, index) {
-                  final file = files[index];
-                  final fileName = file.path.split('/').last;
-
+                  final note = notes[index];
                   return Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -145,18 +177,29 @@ class _SubjectDetailsState extends State<SubjectDetails> {
                     elevation: 2,
                     child: ListTile(
                       leading: Icon(
-                        fileName.endsWith('.pdf')
-                            ? Icons.picture_as_pdf
-                            : Icons.insert_drive_file,
+                        Icons.picture_as_pdf,
                         color: Colors.redAccent,
                       ),
-                      title: Text(fileName),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.grey),
-                        onPressed: () => deleteFile(File(file.path)),
+                      title: Text(note['title'] ?? 'Untitled'),
+                      subtitle: Text(
+                        note['uploadedBy'] ?? '',
+                        style: const TextStyle(fontSize: 12),
                       ),
-                      onTap: () {
-                        // Optionally open PDF or file viewer
+                      onTap: () async {
+                        final url = note['url'];
+                        if (url != null && url.isNotEmpty) {
+                          final uri = Uri.parse(url);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Could not open file")),
+                            );
+                          }
+                        }
                       },
                     ),
                   );
@@ -168,13 +211,11 @@ class _SubjectDetailsState extends State<SubjectDetails> {
       ),
 
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: pickAndSaveFile,
+        onPressed: uploadFiles,
         icon: const Icon(Icons.upload_file),
-        label: const Text("Upload File"),
+        label: const Text("Upload Notes"),
         backgroundColor: Colors.deepPurple,
       ),
     );
   }
 }
-
-
