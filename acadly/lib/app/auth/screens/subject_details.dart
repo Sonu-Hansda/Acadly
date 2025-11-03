@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:acadly/app/common/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -103,7 +104,7 @@ class _SubjectDetailsState extends State<SubjectDetails> {
       appBar: AppBar(
         title: Text(widget.subjectName),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
       ),
 
       body: Padding(
@@ -112,13 +113,12 @@ class _SubjectDetailsState extends State<SubjectDetails> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // --- Subject Info ---
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              color: Colors.white,
+              color: AppColors.background,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -129,7 +129,7 @@ class _SubjectDetailsState extends State<SubjectDetails> {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
+                        color: AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -150,7 +150,7 @@ class _SubjectDetailsState extends State<SubjectDetails> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: AppColors.text,
               ),
             ),
 
@@ -163,7 +163,7 @@ class _SubjectDetailsState extends State<SubjectDetails> {
                   ? const Center(
                 child: Text(
                   "No notes uploaded yet!",
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                  style: TextStyle(color: AppColors.textLight, fontSize: 16),
                 ),
               )
                   : ListView.builder(
@@ -214,7 +214,7 @@ class _SubjectDetailsState extends State<SubjectDetails> {
         onPressed: uploadFiles,
         icon: const Icon(Icons.upload_file),
         label: const Text("Upload Notes"),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
       ),
     );
   }

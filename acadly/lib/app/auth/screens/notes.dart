@@ -60,10 +60,20 @@ Future<void> fetchSubjects() async {
         }).toList();
       });
     } else {
-      print("Failed to load subjects: ${response.statusCode}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to load subjects (${response.statusCode})"),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   } catch (e) {
-    print("Error fetching subjects: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error fetching subjects: $e"),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
   } finally {
     setState(() => isLoading = false);
   }
@@ -104,11 +114,27 @@ Future<void> addSubject() async {
       professorController.clear();
       creditsController.clear();
       Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Subject added successfully!"),
+          backgroundColor: Colors.green,
+        ),
+      );
     } else {
-      print("Error adding subject: ${response.statusCode}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to add subject (${response.statusCode})"),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   } catch (e) {
-    print("Error adding subject: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error adding subject: $e"),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
   }
 }
 
@@ -120,7 +146,7 @@ void showAddSubjectDialog() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
         contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
         actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
