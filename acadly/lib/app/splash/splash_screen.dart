@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (prefs.containsKey('token')) {
       navigateToHome(context);
     } else {
-      navigateToHome(context);
+      navigateToLogin(context);
     }
   }
 
