@@ -1,10 +1,14 @@
 final notes = [
   {
-    'title' : 'Mechanics'
+    'title' : 'Mechanics',
+    'credits' : '4',
+    'professor' : 'Bipin Sir',
   },
 
   {
-    'title' : 'Maths'
+    'title' : 'Maths',
+    'credits' : '4',
+    'professor' : 'Rajat Sir',
   }
 ];
 
