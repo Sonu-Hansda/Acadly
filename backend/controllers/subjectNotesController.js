@@ -1,5 +1,3 @@
-import path from "path";
-import fs from "fs";
 import { TryCatch } from "../middlewares/error.js";
 import Subject from "../models/subject.js";
 import Note from "../models/notes.js";
